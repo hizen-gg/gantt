@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Gantt</title>
+    <script src="https://code.highcharts.com/7/highcharts.js"></script>
+    <script src="https://code.highcharts.com/7/modules/gantt.js"></script>
+    <style>
+      .nav-menu {
+        background-color: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .nav-menu a {
+        margin-right: 15px;
+        text-decoration: none;
+        color: #333;
+        padding: 8px 16px;
+        border-radius: 4px;
+      }
+      .nav-menu a.active {
+        background-color: #007bff;
+        color: white;
+      }
+      .gantt-container {
+        height: 1000px;
+        margin: 1em;
+      }
+      .controls {
+        margin: 20px;
+      }
+      .year-selector {
+        padding: 5px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-menu">
+      <a href="#" id="ganttA" class="active">Gantt A</a>
+      <a href="#" id="ganttB">Gantt B</a>
+      <a href="#" id="ganttC">Gantt C</a>
+    </div>
+
+    <div class="controls">
+      <label for="yearSelect">Année : </label>
+      <select id="yearSelect" class="year-selector">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+    </div>
+
+    <div id="container" class="gantt-container"></div>
+
+    <script src="ganttA.js"></script>
+    <script src="ganttB.js"></script>
+    <script>
+      // Gestion de la navigation
+      document.addEventListener("DOMContentLoaded", function () {
+        const yearSelect = document.getElementById("yearSelect");
+        let currentYear = parseInt(yearSelect.value);
+
+        // Initialiser avec Gantt A
+        initGanttA(currentYear);
+
+        // Écouteur pour le changement d'année
+        yearSelect.addEventListener("change", function () {
+          currentYear = parseInt(this.value);
+          const activeGantt = document.querySelector(".nav-menu a.active").id;
+          if (activeGantt === "ganttA") {
+            initGanttA(currentYear);
+          } else if (activeGantt === "ganttB") {
+            initGanttB(currentYear);
+          }
+        });
+
+        // Navigation entre les gantt
+        document.querySelectorAll(".nav-menu a").forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelectorAll(".nav-menu a").forEach((l) => l.classList.remove("active"));
+            this.classList.add("active");
+
+            if (this.id === "ganttA") {
+              initGanttA(currentYear);
+            } else if (this.id === "ganttB") {
+              initGanttB(currentYear);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
