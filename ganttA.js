@@ -5,22 +5,17 @@ function getAvailableHeight() {
 
 function generateProjects(year) {
   const projects = [];
-  const projectNames = Array.from({ length: 10 }, (_, i) => `Project ${String.fromCharCode(65 + i)}`); // A à J
+  const projectNames = Array.from({ length: 10 }, (_, i) => `Project ${String.fromCharCode(65 + i)}`);
 
-  // Couleurs standards
-  const colors = {
-    dev: "#50B3FF", // Bleu
-    ql: "#FF7E7E", // Rouge
-    qc: "#64E0D1", // Turquoise
-    uat: "#FFA500", // Orange
-    preprod: "#4B0082", // Indigo
-    prod: "#9F7FFF", // Violet
-  };
+  const phases = [
+    { name: "Développement", color: "#50B3FF" },
+    { name: "QL", color: "#FF7E7E" },
+    { name: "QC", color: "#64E0D1" },
+  ];
 
   projectNames.forEach((projectName, index) => {
-    // Calcul des dates de début et fin pour chaque projet
-    const monthStart = (index * 1.5) % 12; // Répartit les projets sur l'année
-    const devDuration = 30 + Math.floor(Math.random() * 15); // 30-45 jours
+    const monthStart = (index * 1.5) % 12;
+    const devDuration = 30 + Math.floor(Math.random() * 15);
     const startDate = Date.UTC(year, monthStart, 1 + Math.floor(Math.random() * 15));
 
     // Développement
@@ -29,8 +24,8 @@ function generateProjects(year) {
       y: index,
       start: startDate,
       end: Date.UTC(year, monthStart, devDuration),
-      color: colors.dev,
-      dataLabels: { enabled: true, format: "Développement" },
+      color: phases[0].color,
+      phase: phases[0].name,
     });
 
     // QL
@@ -41,8 +36,8 @@ function generateProjects(year) {
       y: index,
       start: qlStart,
       end: Date.UTC(year, monthStart, devDuration + qlDuration),
-      color: colors.ql,
-      dataLabels: { enabled: true, format: "QL" },
+      color: phases[1].color,
+      phase: phases[1].name,
     });
 
     // QC
@@ -53,42 +48,9 @@ function generateProjects(year) {
       y: index,
       start: qcStart,
       end: Date.UTC(year, monthStart, devDuration + qlDuration + qcDuration),
-      color: colors.qc,
-      dataLabels: { enabled: true, format: "QC" },
+      color: phases[2].color,
+      phase: phases[2].name,
     });
-
-    // Jalons
-    const milestoneDate = devDuration + qlDuration + qcDuration;
-
-    // // UAT
-    // projects.push({
-    //   name: projectName,
-    //   y: index,
-    //   start: Date.UTC(year, monthStart, milestoneDate - 2),
-    //   milestone: true,
-    //   color: colors.uat,
-    //   dataLabels: { enabled: true, format: "UAT" },
-    // });
-
-    // // PREPROD
-    // projects.push({
-    //   name: projectName,
-    //   y: index,
-    //   start: Date.UTC(year, monthStart, milestoneDate - 1),
-    //   milestone: true,
-    //   color: colors.preprod,
-    //   dataLabels: { enabled: true, format: "PREPROD" },
-    // });
-
-    // // PROD
-    // projects.push({
-    //   name: projectName,
-    //   y: index,
-    //   start: Date.UTC(year, monthStart, milestoneDate),
-    //   milestone: true,
-    //   color: colors.prod,
-    //   dataLabels: { enabled: true, format: "PROD" },
-    // });
   });
 
   return projects;
@@ -97,68 +59,178 @@ function generateProjects(year) {
 function initGanttA(year) {
   const startDate = Date.UTC(year, 0, 1);
   const endDate = Date.UTC(year, 11, 31);
-
-  // Utilisation de la fonction de génération
   const data = generateProjects(year);
+
+  Highcharts.setOptions({
+    lang: {
+      months: [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Août",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre",
+      ],
+      weekdays: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+      rangeSelectorFrom: "Du",
+      rangeSelectorTo: "Au",
+      rangeSelectorZoom: "Période",
+    },
+  });
 
   Highcharts.ganttChart("container", {
     chart: {
-      height: 1200,
-      plotBackgroundColor: "rgba(128,128,128,0.02)",
-      plotBorderColor: "rgba(128,128,128,0.1)",
-      plotBorderWidth: 1,
-      scrollablePlotArea: {
-        minHeight: 1500,
-        opacity: 1,
-      },
-      animation: false,
+      height: 800,
       style: {
         fontFamily: "Arial, sans-serif",
       },
+      marginBottom: 100,
+      spacingBottom: 50,
     },
+
     title: {
       text: "Diagramme de Gantt A",
     },
 
-    scrollbar: {
-      enabled: true,
-      showFull: true,
-      barBackgroundColor: "#f1f1f1",
-      barBorderRadius: 7,
-      barBorderWidth: 0,
-      buttonBackgroundColor: "#f1f1f1",
-      buttonBorderWidth: 0,
-      buttonArrowColor: "#333333",
-      buttonBorderRadius: 7,
-      rifleColor: "#333333",
-      trackBackgroundColor: "#f1f1f1",
-      trackBorderWidth: 1,
-      trackBorderColor: "#e6e6e6",
-      trackBorderRadius: 7,
+    yAxis: {
+      type: "category",
+      categories: [
+        "Projet A",
+        "Projet B",
+        "Projet C",
+        "Projet D",
+        "Projet E",
+        "Projet F",
+        "Projet G",
+        "Projet H",
+        "Projet I",
+        "Projet J",
+      ],
+      labels: {
+        style: { fontSize: "12px" },
+        useHTML: true,
+        formatter: function () {
+          const projectName = this.value;
+          const projectId = projectName.split(" ")[1].toLowerCase();
+          return `<a href="https://projet-${projectId}.com" target="_blank" style="color: #333; text-decoration: none; cursor: pointer;">${projectName}</a>`;
+        },
+      },
+      uniqueNames: true,
     },
 
+    scrollbar: {
+      enabled: true,
+    },
+
+    rangeSelector: {
+      enabled: true,
+      selected: 0,
+      inputEnabled: true,
+      buttonTheme: {
+        width: 60,
+      },
+      buttons: [
+        {
+          type: "month",
+          count: 1,
+          text: "1 mois",
+        },
+        {
+          type: "month",
+          count: 3,
+          text: "3 mois",
+        },
+        {
+          type: "month",
+          count: 6,
+          text: "6 mois",
+        },
+        {
+          type: "all",
+          text: "Tout",
+        },
+      ],
+      inputDateFormat: "%d/%m/%Y",
+      inputEditDateFormat: "%d/%m/%Y",
+      inputDateParser: function (value) {
+        value = value.split("/");
+        return Date.UTC(parseInt(value[2]), parseInt(value[1]) - 1, parseInt(value[0]));
+      },
+      inputBoxWidth: 120,
+      inputStyle: {
+        color: "#333",
+        fontWeight: "normal",
+      },
+      labelStyle: {
+        color: "#666",
+        fontWeight: "normal",
+      },
+    },
+
+    // Ajout de la barre temporelle en bas
+    navigator: {
+      enabled: true,
+      liveRedraw: true,
+      series: {
+        type: "line",
+        lineWidth: 0,
+        marker: {
+          enabled: false,
+        },
+      },
+      yAxis: {
+        min: 0,
+        max: 9,
+        reversed: true,
+        categories: [],
+        labels: {
+          enabled: false,
+        },
+      },
+      height: 30,
+      margin: 25,
+      maskFill: "rgba(102,133,194,0.15)",
+      maskInside: false,
+      outlineWidth: 0,
+      xAxis: {
+        labels: {
+          enabled: false,
+        },
+      },
+      handles: {
+        backgroundColor: "#f1f1f1",
+        borderColor: "#999",
+      },
+      verticalAlign: "bottom",
+      margin: 0,
+    },
+
+    // Ajout d'un deuxième axe X pour les mois
     xAxis: [
       {
-        // Axe pour les semaines (en bas)
-        grid: {
-          enabled: true,
-          borderColor: "#e6e6e6",
-          borderWidth: 1,
-        },
-        labels: {
-          format: "S{value:%W}",
-          style: { fontSize: "10px" },
-        },
-        tickInterval: 7 * 24 * 3600 * 1000,
         min: startDate,
         max: endDate,
+        labels: {
+          formatter: function () {
+            if (this.axis.tickPositions.indexOf(this.value) === -1) return;
+            const weekNum = Highcharts.dateFormat("%V", this.value);
+            return `S${weekNum}`;
+          },
+          style: { fontSize: "10px" },
+        },
+        tickInterval: 7 * 24 * 3600 * 1000, // Une semaine
       },
       {
-        // Axe pour les mois (au milieu)
+        min: startDate,
+        max: endDate,
         grid: {
           enabled: true,
-          borderColor: "#e6e6e6",
-          borderWidth: 1,
         },
         labels: {
           format: "{value:%B}",
@@ -167,107 +239,72 @@ function initGanttA(year) {
             fontWeight: "bold",
           },
         },
-        tickInterval: 30.5 * 24 * 3600 * 1000,
-      },
-      {
-        // Axe pour l'année (en haut)
-        grid: {
-          enabled: true,
-          borderColor: "#e6e6e6",
-          borderWidth: 1,
-        },
-        labels: {
-          format: "{value:%Y}",
-          style: {
-            fontSize: "14px",
-            fontWeight: "bold",
-          },
-        },
-        tickInterval: 365 * 24 * 3600 * 1000,
+        tickInterval: 30.5 * 24 * 3600 * 1000, // Un mois
       },
     ],
-    yAxis: {
-      type: "category",
-      categories: [
-        "Project A",
-        "Project B",
-        "Project C",
-        "Project D",
-        "Project E",
-        "Project F",
-        "Project G",
-        "Project H",
-        "Project I",
-        "Project J",
-      ],
-      labels: {
-        enabled: true,
-        style: {
-          fontSize: "12px",
-        },
+
+    // Ajout de la légende
+    legend: {
+      enabled: true,
+      align: "center",
+      verticalAlign: "bottom",
+      layout: "horizontal",
+      itemStyle: {
+        fontSize: "12px",
       },
-      staticScale: 50,
-      min: 0,
-      max: 9,
-      gridLineWidth: 1,
+      symbolHeight: 12,
+      symbolWidth: 12,
+      symbolRadius: 6,
     },
+
     plotOptions: {
       series: {
         dataLabels: {
-          enabled: true,
-          align: "center",
-          verticalAlign: "middle",
-          style: {
-            fontSize: "12px",
-            fontWeight: "bold",
-            color: "white",
-            textOutline: "none",
-          },
+          enabled: false,
         },
-        states: {
-          hover: {
-            brightness: 0.1,
-          },
-        },
+        showInLegend: true,
       },
       gantt: {
-        grouping: false,
         pointPadding: 0.1,
         borderRadius: 3,
         pointWidth: 35,
-        connectors: {
-          lineWidth: 2,
-          radius: 5,
-        },
       },
     },
+
     series: [
       {
-        name: "Projets",
-        data: data.map((task) => ({
-          ...task,
-          owner: task.milestone ? "Équipe " + task.name.split(" ")[1] : "Équipe Projet",
-          url: "https://projet-" + task.name.toLowerCase().replace(" ", "") + ".com",
-        })),
+        name: "Développement",
+        data: data.filter((task) => task.phase === "Développement"),
+        color: "#50B3FF",
+      },
+      {
+        name: "QL",
+        data: data.filter((task) => task.phase === "QL"),
+        color: "#FF7E7E",
+      },
+      {
+        name: "QC",
+        data: data.filter((task) => task.phase === "QC"),
+        color: "#64E0D1",
       },
     ],
+
     tooltip: {
       useHTML: true,
       headerFormat: '<div style="text-align:center;font-weight:bold;font-size:13px">{point.name}</div>',
       pointFormat:
         '<div style="text-align:center;padding:8px;background-color:{point.color};color:white;border-radius:3px;margin:3px">' +
-        "<b>{point.dataLabels.format}</b><br/>" +
+        "<b>{point.phase}</b><br/>" +
         "Début: {point.start:%d/%m/%Y}<br/>" +
         "Fin: {point.end:%d/%m/%Y}<br/>" +
-        "Équipe: {point.owner}<br/>" +
-        "URL: {point.url}" +
+        "Équipe: Équipe {point.name}" +
         "</div>",
-      style: {
-        fontSize: "12px",
-      },
-      padding: 5,
-      distance: 15,
-      shadow: false,
+    },
+
+    lang: {
+      rangeSelectorFrom: "Du",
+      rangeSelectorTo: "Au",
+      rangeSelectorZoom: "Période",
     },
   });
 }
