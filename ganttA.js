@@ -51,6 +51,69 @@ function generateProjects(year) {
       color: phases[2].color,
       phase: phases[2].name,
     });
+
+    // Ajout des milestones
+    const milestoneDate = Date.UTC(year, monthStart, devDuration + qlDuration + qcDuration);
+
+    // Milestone UAT
+    projects.push({
+      name: projectName,
+      y: index,
+      start: milestoneDate,
+      milestone: true,
+      color: "#FFA500",
+      phase: "UAT",
+      dataLabels: {
+        enabled: true,
+        format: "{point.start:%d}",
+        style: {
+          color: "white",
+          fontSize: "10px",
+          fontWeight: "bold",
+          textOutline: "none",
+        },
+      },
+    });
+
+    // Milestone PREPROD (2 jours après UAT)
+    projects.push({
+      name: projectName,
+      y: index,
+      start: milestoneDate + 2 * 24 * 3600 * 1000,
+      milestone: true,
+      color: "#4B0082",
+      phase: "PREPROD",
+      dataLabels: {
+        enabled: true,
+        format: "{point.start:%d}",
+        style: {
+          color: "white",
+          fontSize: "10px",
+          fontWeight: "bold",
+          textOutline: "none",
+        },
+      },
+    });
+
+    // Milestone PROD (4 jours après UAT)
+    projects.push({
+      name: projectName,
+      y: index,
+      start: milestoneDate + 4 * 24 * 3600 * 1000,
+      milestone: true,
+      color: "#9F7FFF",
+      phase: "PROD",
+      dataLabels: {
+        enabled: true,
+        format: "{point.start:%d}",
+        style: {
+          color: "white",
+          fontSize: "10px",
+          fontWeight: "bold",
+          textOutline: "none",
+        },
+      },
+    });
   });
 
   return projects;
@@ -252,9 +315,20 @@ function initGanttA(year) {
       itemStyle: {
         fontSize: "12px",
       },
-      symbolHeight: 12,
-      symbolWidth: 12,
-      symbolRadius: 6,
+      symbolHeight: 0,
+      symbolWidth: 0,
+      symbolRadius: 0,
+      useHTML: true,
+      labelFormatter: function () {
+        return (
+          '<span style="display:flex;align-items:center;">' +
+          '<span style="display:inline-block;margin-right:5px;width:12px;height:12px;border-radius:6px;background-color:' +
+          this.userOptions.color +
+          '"></span>' +
+          this.name +
+          "</span>"
+        );
+      },
     },
 
     plotOptions: {
@@ -263,6 +337,10 @@ function initGanttA(year) {
           enabled: false,
         },
         showInLegend: true,
+        marker: {
+          symbol: "circle",
+          radius: 6,
+        },
       },
       gantt: {
         pointPadding: 0.1,
@@ -286,6 +364,21 @@ function initGanttA(year) {
         name: "QC",
         data: data.filter((task) => task.phase === "QC"),
         color: "#64E0D1",
+      },
+      {
+        name: "UAT",
+        data: data.filter((task) => task.phase === "UAT"),
+        color: "#FFA500",
+      },
+      {
+        name: "PREPROD",
+        data: data.filter((task) => task.phase === "PREPROD"),
+        color: "#4B0082",
+      },
+      {
+        name: "PROD",
+        data: data.filter((task) => task.phase === "PROD"),
+        color: "#9F7FFF",
       },
     ],
 
